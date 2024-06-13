@@ -17,4 +17,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     ByFileTypeCalculationStrategy.h \
     ByFolderCalculationStrategy.h \
-    calculationstrategy.h
+    calculationstrategy.h \
+    fileBrowser.h
