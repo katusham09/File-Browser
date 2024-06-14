@@ -2,40 +2,50 @@
 #define BYFILETYPECALCULATIONSTRATEGY_H
 #include "calculationstrategy.h"
 
+// Класс для расчета размеров файлов по их типам (расширениям)
 class ByFileTypeCalculationStrategy : public CalculationStrategy {
 public:
+    // Основная функция расчета, которая вызывается для заданного пути
     std::map<QString, std::pair<int, double>> calculate(const QString& path) override {
         std::map<QString, std::pair<int, double>> fileSizes;
+        // Вызов вспомогательной функции для расчета размеров файлов
         calculateFileSizes(QDir(path), fileSizes);
+
+        // Если нет файлов, выводим сообщение
+        if (fileSizes.empty()) {
+            std::cout << "No files found in the directory." << std::endl;
+        }
         return fileSizes;
     }
 
 private:
+    // Вспомогательная функция для подсчета размеров файлов
     void calculateFileSizes(const QDir& dir, std::map<QString, std::pair<int, double>>& fileSizes) {
+        // Получение списка файлов в текущей директории
         QFileInfoList fileList = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
         qint64 totalSize = 0;
 
         // Считаем размеры файлов в текущей директории
         for (const QFileInfo& fileInfo : fileList) {
-            totalSize += fileInfo.size();
-            QString fileType = fileInfo.completeSuffix();
-            int fileSize = fileInfo.size();
+            totalSize += fileInfo.size(); // Увеличиваем общий размер
+            QString fileType = fileInfo.completeSuffix(); // Получаем расширение файла
+            int fileSize = fileInfo.size(); // Размер текущего файла
             if (!fileType.isEmpty()) {
-                fileSizes[fileType].first += fileSize;
+                fileSizes[fileType].first += fileSize; // Добавляем размер файла к соответствующему типу
             }
         }
 
-        // Считаем размеры файлов в поддиректориях первого уровня
+        // Получение списка поддиректорий первого уровня (исключая . и ..)
         QFileInfoList dirList = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
         for (const QFileInfo& dirInfo : dirList) {
-            QDir subDir(dirInfo.absoluteFilePath());
+            QDir subDir(dirInfo.absoluteFilePath()); // Переход в поддиректорию
             QFileInfoList subFileList = subDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
             for (const QFileInfo& fileInfo : subFileList) {
-                totalSize += fileInfo.size();
-                QString fileType = fileInfo.completeSuffix();
-                int fileSize = fileInfo.size();
+                totalSize += fileInfo.size(); // Увеличиваем общий размер
+                QString fileType = fileInfo.completeSuffix(); // Получаем расширение файла
+                int fileSize = fileInfo.size(); // Размер текущего файла
                 if (!fileType.isEmpty()) {
-                    fileSizes[fileType].first += fileSize;
+                    fileSizes[fileType].first += fileSize; // Добавляем размер файла к соответствующему типу
                 }
             }
         }
@@ -46,6 +56,7 @@ private:
         }
     }
 
+    // Функция для вычисления процентного размера
     double calculatePercentage(int value, qint64 total) {
         if (total == 0) return 0.0;
         double percentage = static_cast<double>(value) / total * 100;
